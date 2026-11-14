@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lisa Shop - Online Shopping in Kenya</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <h1>Lisa Shop 🛍️</h1>
+    <input type="text" id="search" placeholder="Search for products...">
+    <button>Search</button>
+    <button id="cartBtn">Cart 🛒 (0)</button>
+  </header>
+
+  <!-- HERO / BANNER -->
+  <div class="hero">
+    <h2>Welcome to Lisa Shop!</h2>
+    <p>Best Deals in Kenya - Up to 50% OFF!</p>
+  </div>
+
+  <!-- PRODUCTS -->
+  <main>
+    <h2>Flash Sale 🔥</h2>
+    <div id="products"></div>
+  </main>
+
+  <!-- CART POPUP - MUST BE BEFORE SCRIPT -->
+  <div id="cartModal" style="display:none; position:fixed; top:0; right:0; width:320px; height:100%; background:white; padding:20px; box-shadow:-5px 0 15px rgba(0,0,0,0.2); overflow-y:auto; z-index:100;">
+    <h2>Your Cart 🛒</h2>
+    <div id="cartItems"></div>
+    <h3 id="cartTotal">Total: KSh 0</h3>
+    <button onclick="alert('Thank you for shopping at Lisa Shop! 🎉')" style="background:#f68b1e; color:white; border:none; padding:12px; width:100%; border-radius:5px; font-weight:bold; cursor:pointer;">Checkout</button>
+    <br><br>
+    <button id="closeCart" style="padding:10px; width:100%; cursor:pointer;">Close</button>
+  </div>
+
+  <!-- SCRIPT - ALWAYS LAST -->
+  <script src="script.js"></script>
+</body>
+</html>

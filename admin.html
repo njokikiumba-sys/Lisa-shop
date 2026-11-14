@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin - Lisa Shop</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.admin-wrap{max-width:900px;margin:0 auto;padding:15px}
+.card{background:white;padding:15px;border-radius:10px;margin:10px 0;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+input,select{width:100%;padding:10px;margin:6px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
+button{padding:10px 14px;border:none;border-radius:8px;background:#f68b1e;color:white;font-weight:bold;cursor:pointer;margin:3px}
+button.danger{background:#e53935} button.green{background:#2e7d32} button.grey{background:#888}
+table{width:100%;border-collapse:collapse} td,th{padding:8px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
+</style>
+</head>
+<body>
+<div class="admin-wrap">
+  <h1>👑 Lisa Shop Admin</h1>
+  <p id="adminWelcome"></p>
+  <button onclick="goShop()">Go to Shop</button> <button class="grey" onclick="logout()">Logout</button>
+
+  <!-- STATS -->
+  <div class="card"><h3>📊 Dashboard</h3><p id="stats"></p><p id="lowStock"></p></div>
+
+  <!-- ADD PRODUCT -->
+  <div class="card">
+    <h3>➕ Add / Edit Product</h3>
+    <input id="pName" placeholder="Product Name e.g Wireless Earbuds">
+    <input id="pPrice" placeholder="Price e.g 1499" type="number">
+    <input id="pOldPrice" placeholder="Old Price e.g 2500" type="number">
+    <input id="pStock" placeholder="Stock e.g 10" type="number">
+    <input id="pImg" placeholder="Emoji e.g 🎧 or image URL">
+    <input id="pEditId" type="hidden">
+    <button onclick="saveProduct()" id="saveBtn">Save Product</button>
+    <button class="grey" onclick="resetForm()">Clear</button>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="card"><h3>📦 Products</h3><div id="productTable"></div></div>
+
+  <!-- ORDERS -->
+  <div class="card"><h3>🧾 All Orders</h3><div id="orderList"></div></div>
+</div>
+
+<script>
+// --- ADMIN GUARD ---
+let currentUser = JSON.parse(localStorage.getItem('lisa_currentUser') || 'null');
+// ADMIN CHECK: Only admin@lisashop.com is admin
+if(!currentUser || currentUser.email !== 'admin@lisashop.com'){
+  alert('Access denied! Admins only.');
+  window.location.href = 'login.html';
+}
+document.getElementById('adminWelcome').innerText = 'Welcome Admin, ' + currentUser.name;
+
+function logout(){ localStorage.removeItem('lisa_currentUser'); window.location.href='login.html'; }
+function goShop(){ window.location.href='index.html'; }
+
+function getProducts(){ return JSON.parse(localStorage.getItem('lisa_products') || '[]'); }
+function saveProducts(p){ localStorage.setItem('lisa_products', JSON.stringify(p)); }
+function getOrders(){ return JSON.parse(localStorage.getItem('lisa_orders') || '[]'); }
+
+function renderAll(){
+  let products = getProducts();
+  let orders = getOrders();
+  // Stats
+  let totalSales = orders.filter(o=>o.status==='Paid').reduce((s,o)=>s+o.total,0);
+  let paidCount = orders.filter(o=>o.status==='Paid').length;
+  document.getElementById('stats').innerHTML = `Total Orders: <b>${orders.length}</b> | Paid Orders: <b>${paidCount}</b> | Total Sales: <b>KSh ${totalSales}</b>`;
+  let low = products.filter(p=>p.stock<=2);
+  document.getElementById('lowStock').innerHTML = low.length ? '⚠️ LOW STOCK: ' + low.map(p=>p.name+' ('+p.stock+')').join(', ') : '✅ Stock is OK';
+
+  // Products Table
+  let html = `<table><tr><th>Product</th><th>Price</th><th>Stock</th><th>Action</th></tr>`;
+  products.forEach(p=>{
+    html += `<tr><td>${p.img} ${p.name}</td><td>KSh ${p.price} <s>${p.oldPrice||''}</s></td><td>${p.stock}</td><td><button onclick="editProduct(${p.id})">Edit</button> <button class="danger" onclick="deleteProduct(${p.id})">Delete</button></td></tr>`;
+  });
+  html += `</table>`;
+  document.getElementById('productTable').innerHTML = html;
+
+  // Orders
+  if(orders.length===0) document.getElementById('orderList').innerHTML = '<p>No orders yet.</p>';
+  else {
+    let oHtml = orders.slice().reverse().map((o,i)=>{
+      let realIndex = orders.length-1 - i;
+      return `<div style="border-bottom:1px solid #eee;padding:10px 0"><b>Order #${o.id}</b> - ${o.customerName} (${o.customerEmail})<br>Phone: ${o.phone} | Total: KSh ${o.total} | Status: <b>${o.status}</b><br>Items: ${o.items.map(it=>it.name+' x'+it.qty).join(', ')}<br>${o.status!=='Delivered' ? `<button class="green" onclick="markDelivered(${realIndex})">Mark Delivered</button>` : '✅ Delivered'}</div>`;
+    }).join('');
+    document.getElementById('orderList').innerHTML = oHtml;
+  }
+}
+
+function saveProduct(){
+  let name = document.getElementById('pName').value.trim();
+  let price = parseInt(document.getElementById('pPrice').value);
+  let oldPrice = parseInt(document.getElementById('pOldPrice').value) || price;
+  let stock = parseInt(document.getElementById('pStock').value);
+  let img = document.getElementById('pImg').value.trim() || '🛍️';
+  let editId = document.getElementById('pEditId').value;
+  if(!name || !price || isNaN(stock)){ alert('Fill name, price, stock'); return; }
+  let products = getProducts();
+  if(editId){
+    let p = products.find(x=>x.id==editId);
+    p.name=name; p.price=price; p.oldPrice=oldPrice; p.stock=stock; p.img=img;
+  } else {
+    let newId = products.length ? Math.max(...products.map(p=>p.id))+1 : 1;
+    products.push({id:newId, name:name, price:price, oldPrice:oldPrice, stock:stock, img:img});
+  }
+  saveProducts(products);
+  resetForm(); renderAll(); alert('Product saved!');
+}
+function editProduct(id){
+  let p = getProducts().find(x=>x.id===id);
+  document.getElementById('pName').value = p.name;
+  document.getElementById('pPrice').value = p.price;
+  document.getElementById('pOldPrice').value = p.oldPrice;
+  document.getElementById('pStock').value = p.stock;
+  document.getElementById('pImg').value = p.img;
+  document.getElementById('pEditId').value = p.id;
+  document.getElementById('saveBtn').innerText = 'Update Product';
+  window.scrollTo(0,0);
+}
+function deleteProduct(id){
+  if(!confirm('Delete this product?')) return;
+  let products = getProducts().filter(p=>p.id!==id);
+  saveProducts(products); renderAll();
+}
+function resetForm(){
+  ['pName','pPrice','pOldPrice','pStock','pImg','pEditId'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('saveBtn').innerText = 'Save Product';
+}
+function markDelivered(index){
+  let orders = getOrders();
+  orders[index].status = 'Delivered';
+  localStorage.setItem('lisa_orders', JSON.stringify(orders));
+  renderAll();
+}
+renderAll();
+</script>
+</body>
+</html>

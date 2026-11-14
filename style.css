@@ -1,0 +1,124 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #f5f5f5;
+}
+
+/* TOP HEADER - JUMIA ORANGE */
+header {
+  background: #f68b1e;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+header h1 {
+  font-size: 24px;
+}
+
+header input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  min-width: 180px;
+}
+
+header button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background: white;
+  color: #f68b1e;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* CATEGORIES */
+nav {
+  background: white;
+  padding: 12px 20px;
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+}
+
+nav a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+nav a:hover {
+  color: #f68b1e;
+}
+
+/* PRODUCTS AREA */
+main {
+  padding: 20px;
+}
+
+main h2 {
+  margin-bottom: 15px;
+}
+/* PRODUCT CARDS */
+#products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.product-card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.product-img {
+  font-size: 60px;
+  margin-bottom: 10px;
+}
+
+.product-card h3 {
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.price {
+  color: #f68b1e;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.old-price {
+  color: #999;
+  text-decoration: line-through;
+  font-size: 13px;
+}
+
+.old-price span {
+  color: white;
+  background: #f68b1e;
+  padding: 2px 6px;
+  border-radius: 5px;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.add-btn {
+  margin-top: 10px;
+  background: #f68b1e;
+  color: white;
+  width: 100%;
+}
